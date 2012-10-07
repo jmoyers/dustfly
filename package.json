@@ -1,0 +1,32 @@
+{
+  "name": "dustfly",
+  "version": "0.0.1",
+  "description": "linkedin dust.js express 3 precompiled template route handler/cli tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jmoyers/dustfly.git"
+  },
+  "keywords": [
+    "linkedin",
+    "dust.js",
+    "express",
+    "precompiled",
+    "template",
+    "route",
+    "handler",
+    "cli"
+  ],
+  "author": "Joshua Moyers <jmoyers@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mocha": "~1.6.0",
+    "express": "~3.0.0rc4",
+    "consolidate": "~0.4.0",
+    "findit": "~0.1.2",
+    "dustjs-linkedin": "~1.1.1"
+  }
+}
