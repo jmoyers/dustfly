@@ -31,11 +31,11 @@ app.listen(3000);
 Given a directory structure:
 
     views/
+        child_view.dust
+        parent_view.dust
         relative/
+            relative_child_view.dust
+            relative_parent_view.dust
             deep/
                 deep_child_view.dust
                 deep_parent_view.dust
-            relative_child_view.dust
-            relative_parent_view.dust
-          child_view.dust
-          parent_view.dust
