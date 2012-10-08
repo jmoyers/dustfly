@@ -11,21 +11,22 @@ dustfly
 
 Example usage:
 
-    var dustfly = require('dustfly'),
-      app = require('express')();
+```js
+var dustfly = require('dustfly')
+  , app = require('express')();
 
-    dustfly(app, {
-      root: 'views',                    // Default: ./views
-      mount: 'templates',               // Default: templates
-      namespace: false,                 // Default: false
-      min: true,                        // Default: false
-      filter: function(file){           // Default: none
-        return ~file.indexOf('.public')
-      }
-    });
+dustfly(app, {
+  root: 'views',                    // Default: ./views
+  mount: 'templates',               // Default: templates
+  namespace: false,                 // Default: false
+  min: true,                        // Default: false
+  filter: function(file){           // Default: none
+    return ~file.indexOf('.public')
+  }
+});
 
-    app.listen(3000);
-
+app.listen(3000);
+```
 
 Given a directory structure:
 
