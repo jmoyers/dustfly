@@ -13,7 +13,7 @@ var consolidate = require('consolidate')
 
 
 module.exports = function (app, options) {
-  var viewDir = options.views || rel('views')
+  var rootDir = options.root || rel('views')
     , engineName = options.engineName || 'dust'
     , engine = require('dustjs-linkedin')//consolidate[engineName]
     , namespace = options.namespace || false
@@ -26,7 +26,7 @@ module.exports = function (app, options) {
     , finalCount = -1;
 
   findit
-    .find(viewDir)
+    .find(rootDir)
     .on('file', function (file, stat) {
       if (!filter(file)) return;
 
@@ -35,20 +35,18 @@ module.exports = function (app, options) {
       fs.readFile(file, function(err, contents){
         readCount++;
 
-        var directories = dir(diff(viewDir, file)).split(path.sep);
+        var directories = dir(diff(rootDir, file)).split(path.sep);
 
         if (!~directories.indexOf('.')) {
           directories = ['.'].concat(directories);
         }
-
-        //console.log(directories);
 
         var name = '';
 
         if (namespace === false) {
           name = base(file);
         } else {
-          name = diff(viewDir, file).replace(path.sep, namespace);
+          name = diff(rootDir, file).replace(path.sep, namespace);
         }
         
         templates.push({
@@ -117,7 +115,7 @@ module.exports = function (app, options) {
 var app = express();
 
 module.exports(app, {
-  views: resolve(rel('test', 'views')),
+  root: resolve(rel('test', 'views')),
   min: true
 });
 
