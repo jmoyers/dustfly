@@ -6,20 +6,35 @@ var consolidate = require('consolidate')
   , rel = path.join.bind(null, __dirname)
   , diff = path.relative
   , dir = path.dirname
-  , base = path.basename;
+  , base = path.basename
+  , _ = require('lodash')
+  , express = require('express');
 
 
-module.exports = function (app, name, options) {
+module.exports = function (app, options) {
   var viewDir = options.views || rel('views')
-    , engine = require('dustjs-linkedin')//consolidate[name]
-    , namespace = options.namepsace || false
-    , templates = [];
+    , engineName = options.engineName || 'dust'
+    , engine = require('dustjs-linkedin')//consolidate[engineName]
+    , namespace = options.namespace || false
+    , mount = options.mount || 'templates'
+    , templates = []
+    , fileCount = 0
+    , readCount = 0
+    , finalCount = -1;
 
   findit
     .find(viewDir)
     .on('file', function (file, stat) {
+      fileCount++;
+
       fs.readFile(file, function(err, contents){
+        readCount++;
+
         var directories = dir(diff(viewDir, file)).split(path.sep);
+
+        if (!~directories.indexOf('.')) {
+          directories = ['.'].concat(directories);
+        }
 
         //console.log(directories);
 
@@ -36,17 +51,59 @@ module.exports = function (app, name, options) {
           compiled: engine.compile(contents.toString(), name),
           paths: directories
         });
+
+        if (readCount == finalCount) {
+          buildRoutes(templates);
+        }
       });
     })
     .on('end', function () {
-      console.log(templates); 
+      finalCount = fileCount; 
     })
     .on('error', function (err) {
       console.error(err);
     });
+
+  function buildRoutes(){
+    var routes = [];
+    //if (!app) return;
+
+    templates.forEach(function (template) {
+      
+      var deep = _.reduce(template.paths, function (route, tpath) {
+        routes[route] = routes[route] || '';
+        routes[route] += template.compiled;
+
+        route += (tpath == '.' ? '' : '/' + tpath );
+        
+        return route;
+      }, '/' + mount);
+
+      
+      if ('/' + mount !== deep) {
+        routes[deep] = routes[deep] || '';
+        routes[deep] += template.compiled;
+      }
+
+      routes[deep + '/' + template.name] = template.compiled;
+    });
+
+    Object.keys(routes).forEach(function (route) {
+      var handler = function (req, res) {
+        res.header('Content-Type', 'application/javascript');
+        res.end(routes[route])
+      };
+        
+      app.get(route, handler);
+      app.get(route + '.js', handler);
+    });
+  }
 };
 
-module.exports(null, 'dust', {
-  views: resolve(rel('test', 'views')),
-  namespace: '.'
+var app = express();
+
+module.exports(app, {
+  views: resolve(rel('test', 'views'))
 });
+
+app.listen(3000);

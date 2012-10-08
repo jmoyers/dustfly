@@ -27,6 +27,8 @@
     "express": "~3.0.0rc4",
     "consolidate": "~0.4.0",
     "findit": "~0.1.2",
-    "dustjs-linkedin": "~1.1.1"
+    "dustjs-linkedin": "~1.1.1",
+    "uglify-js": "~1.3.3",
+    "lodash": "~0.8.1"
   }
 }
