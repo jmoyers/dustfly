@@ -8,7 +8,8 @@ var consolidate = require('consolidate')
   , dir = path.dirname
   , base = path.basename
   , _ = require('lodash')
-  , express = require('express');
+  , express = require('express')
+  , uglify = require('uglify-js');
 
 
 module.exports = function (app, options) {
@@ -17,6 +18,8 @@ module.exports = function (app, options) {
     , engine = require('dustjs-linkedin')//consolidate[engineName]
     , namespace = options.namespace || false
     , mount = options.mount || 'templates'
+    , filter = options.filter || function(){return true;}
+    , min = options.min || false
     , templates = []
     , fileCount = 0
     , readCount = 0
@@ -25,6 +28,8 @@ module.exports = function (app, options) {
   findit
     .find(viewDir)
     .on('file', function (file, stat) {
+      if (!filter(file)) return;
+
       fileCount++;
 
       fs.readFile(file, function(err, contents){
@@ -89,9 +94,18 @@ module.exports = function (app, options) {
     });
 
     Object.keys(routes).forEach(function (route) {
+      var output = routes[route];
+      
+      if (min) {
+        var ast = uglify.parser.parse(output);
+        ast = uglify.uglify.ast_mangle(ast);
+        ast = uglify.uglify.ast_squeeze(ast);
+        output = uglify.uglify.gen_code(ast);
+      }
+
       var handler = function (req, res) {
         res.header('Content-Type', 'application/javascript');
-        res.end(routes[route])
+        res.end(output)
       };
         
       app.get(route, handler);
@@ -103,7 +117,8 @@ module.exports = function (app, options) {
 var app = express();
 
 module.exports(app, {
-  views: resolve(rel('test', 'views'))
+  views: resolve(rel('test', 'views')),
+  min: true
 });
 
 app.listen(3000);
